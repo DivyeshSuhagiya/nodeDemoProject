@@ -1,11 +1,11 @@
 const { WHITE_LIST } = require('../config/constant')
 
 var corsOptionsDelegate = function (req, callback) {
-  var corsOptions = { origin: "*", credentials: true }
+  var corsOptions = { origin: "https://node-demo-first.herokuapp.com/", credentials: true }
   if (WHITE_LIST.indexOf(req.header('Origin')) !== -1) {
-    corsOptions = { origin: "*", credentials: true }
+    corsOptions = { origin: "https://node-demo-first.herokuapp.com/", credentials: true }
   } else {
-    corsOptions = { origin: "*" }
+    corsOptions = { origin: "https://node-demo-first.herokuapp.com/" }
   }
   callback(null, corsOptions)
 }
