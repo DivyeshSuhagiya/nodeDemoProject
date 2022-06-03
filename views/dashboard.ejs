@@ -1,0 +1,176 @@
+<h1>This is dashboard</h1>
+
+<form class="w-50 mx-auto p-4 shadow" id="form">
+    <h3>Form</h3><hr>
+    <!-- <input type="hidden" name="id" value="0" class="input" id="userId"> -->
+    <div class="mb-2">
+        <label class="form-label">First Name</label>
+        <input type="text" name="firstName" class="form-control input">
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Last Name</label>
+        <input type="text" name="lastName" class="form-control input">
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Age</label>
+        <input type="number" name="age" class="form-control input">
+    </div>
+    <div class="mb-2">
+        <label class="form-label">City</label>
+        <input type="text" name="city" class="form-control input">
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Gender</label><br />
+        <input type="radio" name="gender" value="Male"><label>Male</label>
+        <input type="radio" name="gender" value="Female"><label>Female</label>
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Hobbies</label><br />
+        <input type="checkbox" name="hobbies" class="chk" value="Reading"><label>Reading</label>
+        <input type="checkbox" name="hobbies" class="chk" value="Cricket"><label>Cricket</label>
+    </div>
+    <hr />
+    <button type="button" class="btn btn-success" id="addBtn" onclick="save()">Submit</button>
+</form>
+
+<table class="table table-striped mt-5">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Age</th>
+            <th scope="col">Hoobies</th>
+            <th scope="col">Gender</th>
+            <th scope="col">City</th>
+            <th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody id="tbody">
+    </tbody>
+</table>
+
+
+
+<script>
+    const BASE_URL = 'http://localhost:3000/api/student/';
+    let userId ;
+
+    const getData = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}get-mongoose`);
+        const studentData = response.data.data;
+        
+        return studentData;
+    } catch (errors) {
+        console.error(errors);
+    }
+    };
+    getData();
+
+    const save = async() => {
+        let obj = {};
+        let textboxValue = document.querySelectorAll('.input');
+        textboxValue.forEach(x => {
+            obj[x.name] = x.value;
+        })
+        let gender = document.querySelector('[name="gender"]:checked').value;
+        let hobbiesChk = [];
+        let checkboxes = document.querySelectorAll('.chk:checked');
+        checkboxes.forEach(x => {
+            hobbiesChk.push(x.value);
+        })
+
+        obj.gender = gender;
+        obj.hobbies = hobbiesChk.join();
+
+        if (userId == null) {
+            try {
+                const response = await axios.post(`${BASE_URL}post-mongoose` , obj);
+                const studentData = response.data.data;
+                grid();
+                return studentData;
+            } catch (errors) {
+                console.error(errors);
+            }
+        }
+        else {
+            console.log(userId)
+            obj._id = userId
+            console.log(obj)
+            try {
+                const response = await axios.post(`${BASE_URL}put-mongoose` , obj);
+                const studentData = response.data.data;
+                console.log(response)
+                grid();
+                return studentData;
+            } catch (errors) {
+                console.error(errors);
+            }
+        }
+            obj.id = id;
+            document.getElementById('userId').value = 0;
+            document.getElementById("form").reset();
+            document.getElementById('addBtn').addEventListener('click' , function(){
+            document.getElementById('userId').value = 0;
+            })
+    }
+
+
+    async function editUser(id) {
+        userId = id;
+        document.getElementById('form').reset();
+        stdData =  await getData()
+        const crrUser = stdData.find(x => x._id == id);
+        for (const key in crrUser) {
+            if (key == "gender") {
+                document.querySelector(`[name=gender][value=${crrUser[key]}]`).checked = true;
+            }
+            else if (key == "hobbies") {
+                crrUser[key]?.map(x => {
+                    document.querySelector(`.chk[value=${x}]`).checked = true;
+                })
+            }
+            else {
+                document.getElementsByName(key)[0].value = crrUser[key];
+            }
+        }
+    }
+    
+     const userDelete = async(id)  => {  
+        let confirmMsg = confirm('Are You sure Delete???');
+        console.log(id)
+        if (confirmMsg) {
+            try {
+                const response = await axios.delete(`${BASE_URL}delete-mongoose?id=${id}`);
+                const studentData = response.data.data;
+                grid();
+                return studentData;
+            } catch (errors) {
+                console.error(errors);
+            }
+    }
+    }
+
+     const grid = async() =>  {
+        let stdData = await getData()
+        let html = '';
+        stdData.map(x => {
+            html += `<tr>
+                <td>${x._id}</td>
+                <td>${x.firstName}</td>
+                <td>${x.lastName}</td>
+                <td>${x.age}</td>
+                <td>${x.hobbies}</td>
+                <td>${x.gender}</td>
+                <td>${x.city}</td>
+                <td>
+                    <button class="btn btn-info" onclick="editUser('${x._id}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="btn btn-danger ms-3" onclick="(userDelete('${x._id}'))"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>`
+        })
+        document.querySelector("tbody").innerHTML = html;
+    }
+    grid();
+</script>
