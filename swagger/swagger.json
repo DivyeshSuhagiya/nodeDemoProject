@@ -5,7 +5,7 @@
     "title": "Student App",
     "contact": {}
   },
-  "host": "localhost:8443",
+  "host": "node-demo-first.herokuapp.com",
   "basePath": "/api",
   "schemes": ["https","http"],
   "consumes": ["application/json"],
