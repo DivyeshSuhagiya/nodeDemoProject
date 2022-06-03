@@ -7,7 +7,7 @@
   },
   "host": "node-demo-first.herokuapp.com",
   "basePath": "/api",
-  "schemes": ["http","https"],
+  "schemes": ["https","http"],
   "consumes": ["application/json"],
   "produces": ["application/json"],
   "paths": {
